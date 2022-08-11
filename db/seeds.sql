@@ -7,7 +7,7 @@ VALUES ("Human Resources"),
 
 INSERT INTO role(title, salary, department_id)
 VALUES ("Salesman", 123456.00, 2),
-("Hiring Manager", 400.00, 1),
+("Hiring Manager", 40000.00, 1),
 ("Marketing Specialist", 60000.00, 3);
 
 INSERT INTO employee(first_name, last_name, role_id, manager_id)
