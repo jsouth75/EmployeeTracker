@@ -10,6 +10,10 @@ const questions = [
             "View All Departments",
             "View All Roles",
             "View All Employees",
+            "Add a Department",
+            "Add a Role",
+            "Add an Employee",
+            "Update an Employee Role"
         ]
     }
 ]
@@ -37,6 +41,8 @@ function startRunning() {
             viewDept()
         } else if (answers.choice == "View All Roles") {
             viewRoles()
+        } else if (answers.choice == "View All Employees") {
+            viewEmployees()
         }
     })
 }
@@ -58,6 +64,23 @@ function viewRoles () {
     const sqlString = `
     SELECT role.id, title, salary, department.name AS "department name"
     FROM role
+    JOIN department
+    ON department_id = department.id;`
+
+    db.query(sqlString, (err, data) => {
+        if (err) throw err;
+
+        console.table(data)
+        startRunning()
+    })
+}
+
+function viewEmployees () {
+    const sqlString = `
+    SELECT employee.id, first_name, last_name, manager_id, title, salary, department.name AS "department name"
+    FROM employee
+    JOIN role 
+    ON role_id = role.id
     JOIN department
     ON department_id = department.id;`
 
