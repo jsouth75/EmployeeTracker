@@ -1,13 +1,13 @@
-drop database if exists employeeTracker_db;
-create database employeeTracker_db;
-use employeeTracker_db;
+DROP DATABASE IF EXISTS employeeTracker_db;
+CREATE DATABASE employeeTracker_db;
+USE employeeTracker_db;
 
-create table department (
+CREATE TABLE department (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(30) 
 );
 
-create table role (
+CREATE TABLE role (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(30),
     salary DECIMAL(10,2),
@@ -15,13 +15,11 @@ create table role (
     FOREIGN KEY (department_id) REFERENCES department(id)
 );
 
-create table employee (
+CREATE TABLE employee (
    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
    first_name VARCHAR(30),
    last_name VARCHAR(30),
    role_id INT,
-   manager_id INT ON DELETE SET NULL,
-   FOREIGN KEY (role_id) REFERENCES role(id),
-   FOREIGN KEY (manager_id) REFERENCES employee(id)
+   manager_id INT REFERENCES employee(id),
+   FOREIGN KEY (role_id) REFERENCES role(id)
 );
-
