@@ -16,13 +16,7 @@ const questions = [
             "Add a Role",
             "Add an Employee",
             "Update an Employee Role",
-            "View Employees by Manager",
-            "Update Employee Manager",
-            "View Employees by Department",
-            "Delete Department",
-            "Delete Role",
-            "Delete Employee",
-            "Ext employeeTracker_db"
+            "Exit employeeTracker_db"
         ]
     }
 ]
@@ -124,8 +118,25 @@ function viewEmployees () {
     })
 };
 
-// function addDepartment () {
-//     const addDepartment = async () => {
+function addDepartment () {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: 'newDept',
+            message: 'What is the new department name'
+        }
+    ]).then(answers => {
+        const sqlString = `
+        INSERT INTO department (name)
+        VALUES (?)`
+
+        db.query(sqlString, [answers.newDept], (err, data) => {
+         console.log("added new department");
+         startRunning()   
+        })
+    })
+}
+// async () => {
 //         inquirer.prompt([
 //             {
 //                 type: 'input',
@@ -139,11 +150,98 @@ function viewEmployees () {
 //     }
 // }
         
+function searchDepartments () {
+    return db.promise().query('SELECT * FROM department')
+}
+
+
+async function addRole () {
+    const [rows] = await searchDepartments()
+
+    const organizedInfo = rows.map(index => (
+        {
+            name: index.name,
+            value: index.id
+        }
+    ))  
     
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What is the new role?',
+            name: 'newRole'
+        },
+        {
+            type: 'input',
+            message: 'What is the new salary?',
+            name: 'newSalary'
+        },
+        {
+            type: 'list',
+            message: 'What department does the new role belong to?',
+            name: 'deptId',
+            choices: organizedInfo
+        },
+    ]).then(answers => {
+        console.log(answers)
+        const sqlString = `
+        INSERT INTO role (title, salary, department_id)
+        VALUES (?, ?, ?)`
+
+        db.query(sqlString, [answers.newRole, answers.newSalary, answers.deptId], (err, data) => {
+            console.log('added new role')
+            startRunning()
+        })
+    })
+};
+
+// function addEmployee () {
+//     const sqlString = 
+    
+//     db.query(sqlString, (err, data) => {
+//         if (err) throw err;
+        
+//         console.table(data)
+//         startRunning()
+//     })
+// };
+
+// function updateEmployeeRole () {
+//     const sqlString = 
+    
+//     db.query(sqlString, (err, data) => {
+//         if (err) throw err;
+        
+//         console.table(data)
+//         startRunning()
+//     })
+// };
+
+// function viewEmployeeByMgr () {
+//     const sqlString = 
+    
+//     db.query(sqlString, (err, data) => {
+//         if (err) throw err;
+        
+//         console.table(data)
+//         startRunning()
+//     })
+// };
+
+// function viewEmployeeByDept () {
+//     const sqlString = 
+    
+//     db.query(sqlString, (err, data) => {
+//         if (err) throw err;
+        
+//         console.table(data)
+//         startRunning()
+//     })
+// };
 
 
 // const exit = () => {
-//     inquirer.prompt ( {
+//     inquirer.prompt ({
 //         type: 'confirm',
 //         name: 'exit',
 //         message: 'Are you sure you want to exit?'
