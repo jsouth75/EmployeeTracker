@@ -136,19 +136,6 @@ function addDepartment () {
         })
     })
 }
-// async () => {
-//         inquirer.prompt([
-//             {
-//                 type: 'input',
-//                 name: 'newDepartment',
-//                 message: 'What is the name of the department?'
-//             }]
-//         ).then(results => {
-//             db.query('INSERT INTO department SET ?',
-//             {department_name: results.newDept})
-//         })
-//     }
-// }
         
 function searchDepartments () {
     return db.promise().query('SELECT * FROM department')
