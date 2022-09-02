@@ -1,106 +1,104 @@
+
 const mysql = require('mysql2');
 const inquirer = require("inquirer");
-const async = require('hbs/lib/async');
-// const figlet =- require('figlet');
+const fs = require("fs");
+const { start } = require('repl');
+const figlet =- require('figlet');
 
-const questions = [
+
+// connect to database
+const db = mysql.createConnection(
     {
-        type: "list",
-        name: "choice",
-        message: "What would you like to do?",
-        choices: [
-            "View All Departments",
-            "View All Roles",
-            "View All Employees",
-            "Add a Department",
-            "Add a Role",
-            "Add an Employee",
-            "Update an Employee Role",
-            "Exit employeeTracker_db"
-        ]
-    }
-]
+        host: 'localhost',
+        user: 'root',
+        password: 'jasonsouth',
+        database: 'employeeTracker_db'
+    });
 
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'jsonsouth',
-    database: 'employeeTracker_db',
-});
-
-db.connect((err) => {
-    if(err) {
-        throw err;
-    }
-    console.log('MySql Connected');
+db.connect(function(err) {
+    if(err) throw err;
+    console.log(`
+ -----------------------------   
+ |   Welcome to X company    |
+ -----------------------------   
+ `)
     startRunning()
-});
+})
 
-function startRunning() {
-    inquirer.prompt(questions)
-    .then(answers => {
-        // console.log(answers)
-        if(answers.choice == "View All Departments") {
-            viewDept()
-        } else if (answers.choice == "View All Roles") {
-            viewRoles()
-        } else if (answers.choice == "View All Employees") {
-            viewEmployees()
-        } else if (answers.choice == "Add a Department") {
-            addDepartment()
-        } else if (answers.choice == "Add a Role") {
-            addRole()
-        } else if (answers.choice == "Add an Employee") {
-            addEmployee()
-        } else if (answers.choice == "Update an Employee Role") {
-            updateEmployeeRole()
-        } else if (answers.choice == "View Employees by Manager") {
-            viewEmployeeByMgr()
-        } else if (answers.choice == "Update Employee Manager") {
-            updateEmployeeMgr()
-        } else if (answers.choice == "View Employees by Department") {
-            viewEmployeeByDept()
-        } else if (answers.choice == "Delete Department") {
-            deleteDept()
-        } else if (answers.choice == "Delete Role") {
-            deleteRole()
-        } else if (answers.choice == "Delete Employee") {
-            deleteEmployee()
-        }  else if (answers.choice == "Ext employeeTracker_db") {
-            exit()
-        } 
-
-    })
-};
-
-function viewDept () {
-    const sqlString = `
-    SELECT *
-    FROM department;`
-
-    db.query(sqlString, (err, data) => {
-        if (err) throw err;
-
+    const questions = [
+        {
+            type: "list",
+            name: "choice",
+            message: "What would you like to do?",
+            choices: [
+                "View All Departments",
+                "View All Roles",
+                "View All Employees",
+                "Add a Department",
+                "Add a Role",
+                "Add an Employee",
+                "Update an Employee Role",
+                "Exit employeeTracker_db"
+            ]
+        }
+    ];
+    
+    function startRunning() {
+        inquirer.prompt(questions)
+        .then(answers => {
+            // console.log(answers)
+            if(answers.choice == "View All Departments") {
+                viewDept()
+            } else if (answers.choice == "View All Roles") {
+                viewRoles()
+            } else if (answers.choice == "View All Employees") {
+                viewEmployees()
+            } else if (answers.choice == "Add a Department") {
+                addDepartment()
+            } else if (answers.choice == "Add a Role") {
+                addRole()
+            } else if (answers.choice == "Add an Employee") {  
+                addEmployee()
+            } else if (answers.choice == "Update an Employee Role") {
+                updateEmployeeRole()
+            }  else if (answers.choice == "Exit employeeTracker_db") {
+                quit()
+            } 
+            
+        })
+    };
+    
+    // view Departments function
+    function viewDept () {
+        const sqlString = `
+        SELECT * 
+        FROM department;`
+        
+        db.query(sqlString, (err, data) => {
+            if (err) throw err;
+            
+            console.table(data)
+            startRunning()
+        })
+    };
+    
+    // view Roles function
+    function viewRoles () {
+        const sqlString = `
+        SELECT role.id, title, salary, department.name AS "department name"
+        FROM role
+        JOIN department
+        ON department_id = department.id;`
+        
+        db.query(sqlString, (err, data) => {
+            if (err) throw err;
+            
         console.table(data)
         startRunning()
     })
 };
 
-function viewRoles () {
-    const sqlString = `
-    SELECT role.id, title, salary, department.name AS "department name"
-    FROM role
-    JOIN department
-    ON department_id = department.id;`
-
-    db.query(sqlString, (err, data) => {
-        if (err) throw err;
-
-        console.table(data)
-        startRunning()
-    })
-};
-
+// view Employees function
 function viewEmployees () {
     const sqlString = `
     SELECT employee.id, first_name, last_name, role.title AS "job title", department.name AS "department name", salary, manager_id
@@ -118,6 +116,7 @@ function viewEmployees () {
     })
 };
 
+// add Department function
 function addDepartment () {
     inquirer.prompt([
         {
@@ -136,11 +135,11 @@ function addDepartment () {
         })
     })
 }
-        
+
+// add Role function
 function searchDepartments () {
     return db.promise().query('SELECT * FROM department')
 }
-
 
 async function addRole () {
     const [rows] = await searchDepartments()
@@ -182,16 +181,60 @@ async function addRole () {
     })
 };
 
-// function addEmployee () {
-//     const sqlString = 
+// add Employee function
+function searchRoles() {
+    return db.promise().query('SELECT * FROM role')  
+}
+
+async function addEmployee () {
+    const [rows] = await searchRoles()
+
+    const organizedInfo = rows.map(index => (
+        {
+            name: index.title,
+            value: index.id
+        }
+    ))  
     
-//     db.query(sqlString, (err, data) => {
-//         if (err) throw err;
-        
-//         console.table(data)
-//         startRunning()
-//     })
-// };
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What is the new employee Name?',
+            name: 'newName'
+        },
+        {
+            type: 'input',
+            message: 'What is the new employee Last Name?',
+            name: 'newLast'
+        },
+        {
+            type: 'list',
+            message: 'What role does the new employee belong to?',
+            name: 'roleId',
+            choices: organizedInfo
+        },
+        {
+            type: 'input',
+            message: 'What is the new employee manager?',
+            name: 'newMgrId'
+        },
+    ]).then(answers => {
+        console.log(answers)
+        const sqlString = `
+        INSERT INTO employee (first_name, last_name, role_id, manager_id)
+        VALUES (?, ?, ?, ?)`
+
+        db.query(sqlString, [answers.newName, answers.newLast, answers.roleId, answers.newMgrId], (err, data) => {
+            console.log('added new role')
+            startRunning()
+        })
+    })
+};
+
+// Update Employee Role function
+//UPDATE
+//SET role_id = ?
+//WHERE id = ?
 
 // function updateEmployeeRole () {
 //     const sqlString = 
@@ -204,33 +247,8 @@ async function addRole () {
 //     })
 // };
 
-// function viewEmployeeByMgr () {
-//     const sqlString = 
-    
-//     db.query(sqlString, (err, data) => {
-//         if (err) throw err;
-        
-//         console.table(data)
-//         startRunning()
-//     })
-// };
-
-// function viewEmployeeByDept () {
-//     const sqlString = 
-    
-//     db.query(sqlString, (err, data) => {
-//         if (err) throw err;
-        
-//         console.table(data)
-//         startRunning()
-//     })
-// };
-
-
-// const exit = () => {
-//     inquirer.prompt ({
-//         type: 'confirm',
-//         name: 'exit',
-//         message: 'Are you sure you want to exit?'
-//     })
-// }
+// Exit function
+const quit = () => {
+    console.log('Bye')
+    process.exit()
+}
