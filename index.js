@@ -229,9 +229,6 @@ async function addEmployee () {
 };
 
 // Update Employee Role function
-//UPDATE
-//SET role_id = ?
-//WHERE id = ?
 
 function searchRoles() {
     return db.promise().query('SELECT * FROM employee')  
@@ -248,8 +245,8 @@ async function updateEmployeeRole () {
     ))
     const listRoles = rows.map(index => (
         {
-            name: index.id,
-            value: index.title
+            name: index.roleId,
+            value: index.id
         }
     )); 
     
