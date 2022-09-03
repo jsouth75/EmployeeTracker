@@ -2,9 +2,6 @@
 const mysql = require('mysql2');
 const inquirer = require("inquirer");
 const fs = require("fs");
-const { start } = require('repl');
-const figlet =- require('figlet');
-
 
 // connect to database
 const db = mysql.createConnection(
@@ -18,9 +15,9 @@ const db = mysql.createConnection(
 db.connect(function(err) {
     if(err) throw err;
     console.log(`
- -----------------------------   
- |   Welcome to X company    |
- -----------------------------   
+ -----------------------------------
+ |   Welcome to Employee Tracker   |
+ -----------------------------------   
  `)
     startRunning()
 })
@@ -199,17 +196,17 @@ async function addEmployee () {
     inquirer.prompt([
         {
             type: 'input',
-            message: 'What is the new employee Name?',
+            message: 'What is the new employee first name?',
             name: 'newName'
         },
         {
             type: 'input',
-            message: 'What is the new employee Last Name?',
+            message: 'What is the new employee last name?',
             name: 'newLast'
         },
         {
             type: 'list',
-            message: 'What role does the new employee belong to?',
+            message: 'What is the role of the new employee?',
             name: 'roleId',
             choices: organizedInfo
         },
@@ -236,16 +233,52 @@ async function addEmployee () {
 //SET role_id = ?
 //WHERE id = ?
 
-// function updateEmployeeRole () {
-//     const sqlString = 
+function searchRoles() {
+    return db.promise().query('SELECT * FROM employee')  
+}
+
+async function updateEmployeeRole () {
+    const [rows] = await searchRoles()
+
+    const listNames = rows.map(index => (
+        {
+            name: index.first_name,
+            value: index.title
+        }
+    ))
+    const listRoles = rows.map(index => (
+        {
+            name: index.id,
+            value: index.title
+        }
+    )); 
     
-//     db.query(sqlString, (err, data) => {
-//         if (err) throw err;
-        
-//         console.table(data)
-//         startRunning()
-//     })
-// };
+    inquirer.prompt([
+        {
+            type: 'list',
+            message: 'Which employee needs to be updated?',
+            name: 'selectEmployee',
+            choices: listNames
+        },
+        {
+            type: 'list',
+            message: 'What is the employee new role?',
+            name: 'updatedRole',
+            choices: listRoles
+        },
+    ]).then(answers => {
+        console.log(answers)
+        const sqlString = `
+        UPDATE INTO employee SET (first_name, last_name, role_id,)
+        VALUES (?, ?)`
+
+        db.query(sqlString, [answers.listNames, answers.listRoles], (err, data) => {
+            console.log('updated employee role')
+            startRunning()
+        })
+    })
+};
+
 
 // Exit function
 const quit = () => {
