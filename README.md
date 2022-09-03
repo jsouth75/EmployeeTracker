@@ -13,6 +13,8 @@
 
 This is a command-line application to manage a company's employee database, using Node.js, Inquirer, and MySQL. 
 
+<img src="./assets/EmployeeTracker_screenshot.png">
+
 ## Usage
 
 Click on the following link to deploy this app 
